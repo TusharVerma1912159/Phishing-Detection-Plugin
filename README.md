@@ -55,6 +55,9 @@ This sets up the core analysis server.
     ```bash
     # Example installation of core libraries:
     pip install Flask scikit-learn joblib requests pandas numpy tldextract configparser xgboost lightgbm
+    
+    # Install all packages from requirements.txt
+    pip install -r requirements.txt
     ```
 2.  **Configure API Keys (Critical):**
     * Open **`backend/config.ini`**.
@@ -93,4 +96,5 @@ This loads the extension into your browser's developer environment.
 4.  **Analyze:** Click the **"Analyze"** button. The extension sends the URL to the API, and the UI dynamically updates with the **Final Verdict** and the three individual voting results.
 
 ---
+
 
