@@ -1,4 +1,4 @@
-## 🎣 Phishing Detector: ML Ensemble & API Fusion System
+## 🎣 Phishing Detector: ML Ensemble & API Fusion System (A Complete Guide)
 
 ### 🌟 1. Project Overview
 
@@ -14,7 +14,7 @@ The final verdict is determined by a **2-out-of-3 majority**, classifying the UR
 
 ### 🏗️ 2. Detailed File Breakdown by Component
 
-The repository follows a clean, decoupled structure. **Note:** The extension files are located directly within the **`frontend/extensions/`** folder.
+The repository follows a clean, decoupled structure. **Note:** The extension files are located directly within the **`frontend/`** folder.
 
 #### A. Backend Component (`backend/` folder)
 
@@ -30,16 +30,16 @@ This component contains the core Python logic, machine learning assets, and the 
 | **`scaler.pkl`** | **Feature Scaler:** The serialized `StandardScaler` object used to **normalize incoming URL features** in `api.py` before model input, ensuring data consistency. |
 | **`feature_names.pkl`** | **Feature Order List:** A serialized list that defines the **exact, mandatory order** of features expected by the model, preventing critical column misalignment during inference. |
 
-#### B. Frontend Component (`frontend/extensions/` folder)
+#### B. Frontend Component (`frontend/` folder)
 
 This component is the Manifest V3 browser extension UI and logic.
 
 | File Name | Location | Purpose and Technical Description |
 | :--- | :--- | :--- |
-| **`manifest.json`** | `.../extensions/` | Defines metadata and permissions. Includes `host_permissions` for **`http://127.0.0.1:5000/*`** to enable API communication. |
-| **`popup.html`** | `.../extensions/` | HTML markup for the pop-up. Includes structured display areas for the Final Verdict and the three individual votes. |
-| **`popup.js`** | `.../extensions/` | Client-side logic. It captures the URL (using `chrome.tabs.query`), sends it to the Flask API via `fetch()`, and dynamically updates the UI based on the JSON response. |
-| **`style.css`** | `.../extensions/` | Provides the professional visual styling (CSS) for all UI elements in `popup.html`, including the status coloring for the verdict chips. |
+| **`manifest.json`** | `.../frontend/` | Defines metadata and permissions. Includes `host_permissions` for **`http://127.0.0.1:5000/*`** to enable API communication. |
+| **`popup.html`** | `.../frontend/` | HTML markup for the pop-up. Includes structured display areas for the Final Verdict and the three individual votes. |
+| **`popup.js`** | `.../frontend/` | Client-side logic. It captures the URL (using `chrome.tabs.query`), sends it to the Flask API via `fetch()`, and dynamically updates the UI based on the JSON response. |
+| **`style.css`** | `.../frontend/` | Provides the professional visual styling (CSS) for all UI elements in `popup.html`, including the status coloring for the verdict chips. |
 
 ---
 
@@ -76,13 +76,13 @@ This loads the extension into your browser's developer environment.
 1.  **Open Extensions:** Navigate to `chrome://extensions/`.
 2.  **Enable Developer Mode:** Toggle the **"Developer mode"** switch to **ON**.
 3.  **Load Extension:** Click the **"Load unpacked"** button.
-4.  **Select Folder:** In the file dialog, navigate to the project and **select the folder: `frontend/extensions`**.
+4.  **Select Folder:** In the file dialog, navigate to the project and **select the folder: `frontend`**.
 
 ##### B. For Mozilla Firefox
 
 1.  **Open Debugging:** Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
 2.  **Load Add-on:** Click the **"Load Temporary Add-on..."** button.
-3.  **Select File:** Navigate to the **`frontend/extensions`** folder. You must select **any file** inside this folder, such as the **`manifest.json`** file.
+3.  **Select File:** Navigate to the **`frontend`** folder. You must select **any file** inside this folder, such as the **`manifest.json`** file.
 4.  **Verification:** The extension will be loaded and its icon will appear in your toolbar. (Note: Firefox unloads temporary add-ons when the browser is closed).
 
 #### STEP 3: System Usage and Verification
@@ -93,3 +93,4 @@ This loads the extension into your browser's developer environment.
 4.  **Analyze:** Click the **"Analyze"** button. The extension sends the URL to the API, and the UI dynamically updates with the **Final Verdict** and the three individual voting results.
 
 ---
+
