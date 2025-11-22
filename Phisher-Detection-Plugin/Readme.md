@@ -1,8 +1,8 @@
-## 🎣 Phishing Detector: ML Ensemble & API Fusion System (A Complete Guide)
+## 🎣 Phishing Detector: ML Ensemble & API Fusion System
 
 ### 🌟 1. Project Overview
 
-This project delivers a robust, real-time **URL phishing detection system** packaged as a browser extension. Its core strength is its **Majority Vote architecture**, which integrates three distinct analysis sources to provide a reliable security verdict, minimizing dependence on any single source:
+This project implements a robust, real-time **URL phishing detection system** packaged as a browser extension. Its core strength is its **Majority Vote architecture**, which integrates three distinct analysis sources to provide a reliable security verdict, minimizing dependence on any single source:
 
 1.  **Local Machine Learning Model:** A high-accuracy stacking ensemble classifier.
 2.  **Google Safe Browsing (GSB):** External threat intelligence API.
@@ -14,7 +14,7 @@ The final verdict is determined by a **2-out-of-3 majority**, classifying the UR
 
 ### 🏗️ 2. Detailed File Breakdown by Component
 
-This repository strictly follows a decoupled structure. **Note:** The extension files are located in the nested path: `frontend/myphishingPlugin/`.
+The repository follows a clean, decoupled structure. **Note:** The extension files are located directly within the **`frontend/extensions/`** folder.
 
 #### A. Backend Component (`backend/` folder)
 
@@ -30,16 +30,16 @@ This component contains the core Python logic, machine learning assets, and the 
 | **`scaler.pkl`** | **Feature Scaler:** The serialized `StandardScaler` object used to **normalize incoming URL features** in `api.py` before model input, ensuring data consistency. |
 | **`feature_names.pkl`** | **Feature Order List:** A serialized list that defines the **exact, mandatory order** of features expected by the model, preventing critical column misalignment during inference. |
 
-#### B. Frontend Component (`frontend/myphishingPlugin/` folder)
+#### B. Frontend Component (`frontend/extensions/` folder)
 
 This component is the Manifest V3 browser extension UI and logic.
 
 | File Name | Location | Purpose and Technical Description |
 | :--- | :--- | :--- |
-| **`manifest.json`** | `.../myphishingPlugin/` | Defines metadata and permissions. Includes `host_permissions` for **`http://127.0.0.1:5000/*`** to enable API communication. |
-| **`popup.html`** | `.../myphishingPlugin/` | HTML markup for the pop-up. Includes structured display areas for the Final Verdict and the three individual votes. |
-| **`popup.js`** | `.../myphishingPlugin/` | Client-side logic. It captures the URL (using `chrome.tabs.query`), sends it to the Flask API via `fetch()`, and dynamically updates the UI based on the JSON response. |
-| **`style.css`** | `.../myphishingPlugin/` | Provides the professional visual styling (CSS) for all UI elements in `popup.html`, including the status coloring for the verdict chips. |
+| **`manifest.json`** | `.../extensions/` | Defines metadata and permissions. Includes `host_permissions` for **`http://127.0.0.1:5000/*`** to enable API communication. |
+| **`popup.html`** | `.../extensions/` | HTML markup for the pop-up. Includes structured display areas for the Final Verdict and the three individual votes. |
+| **`popup.js`** | `.../extensions/` | Client-side logic. It captures the URL (using `chrome.tabs.query`), sends it to the Flask API via `fetch()`, and dynamically updates the UI based on the JSON response. |
+| **`style.css`** | `.../extensions/` | Provides the professional visual styling (CSS) for all UI elements in `popup.html`, including the status coloring for the verdict chips. |
 
 ---
 
@@ -76,13 +76,13 @@ This loads the extension into your browser's developer environment.
 1.  **Open Extensions:** Navigate to `chrome://extensions/`.
 2.  **Enable Developer Mode:** Toggle the **"Developer mode"** switch to **ON**.
 3.  **Load Extension:** Click the **"Load unpacked"** button.
-4.  **Select Folder:** In the file dialog, navigate to the project and **select the nested folder: `frontend/myphishingPlugin`**.
+4.  **Select Folder:** In the file dialog, navigate to the project and **select the folder: `frontend/extensions`**.
 
 ##### B. For Mozilla Firefox
 
 1.  **Open Debugging:** Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
 2.  **Load Add-on:** Click the **"Load Temporary Add-on..."** button.
-3.  **Select File:** Navigate to the **`frontend/myphishingPlugin`** folder. You must select **any file** inside this folder, such as the **`manifest.json`** file.
+3.  **Select File:** Navigate to the **`frontend/extensions`** folder. You must select **any file** inside this folder, such as the **`manifest.json`** file.
 4.  **Verification:** The extension will be loaded and its icon will appear in your toolbar. (Note: Firefox unloads temporary add-ons when the browser is closed).
 
 #### STEP 3: System Usage and Verification
@@ -90,5 +90,6 @@ This loads the extension into your browser's developer environment.
 1.  **Prerequisite Check:** Ensure the Python server from **STEP 1** is running.
 2.  **Open Target URL:** Navigate to any website in your browser.
 3.  **Click Extension Icon:** Click the **Phishing Detector** icon in your browser's toolbar.
-4.  **Analyze:** Click the **"Analyze"** button. The extension sends the URL to the running API, and the UI dynamically updates with the **Final Verdict** and the three individual voting results.
+4.  **Analyze:** Click the **"Analyze"** button. The extension sends the URL to the API, and the UI dynamically updates with the **Final Verdict** and the three individual voting results.
 
+---
