@@ -74,3 +74,32 @@ catboost
 Flask           # The micro-web framework for the API
 requests        # For making external HTTP requests (GSB, VT)
 tldextract      # For robust extraction of eTLD+1 (registered domain)
+
+
+#### STEP 2: Frontend Extension Setup (Browser)
+
+This loads the extension into your browser's developer environment.
+
+##### A. For Chrome / Chromium-based Browsers
+
+1.  **Open Extensions:** Navigate to `chrome://extensions/`.
+2.  **Enable Developer Mode:** Toggle the **"Developer mode"** switch to **ON**.
+3.  **Load Extension:** Click the **"Load unpacked"** button.
+4.  **Select Folder:** In the file dialog, navigate to the project and **select the folder: `frontend`**.
+
+##### B. For Mozilla Firefox
+
+1.  **Open Debugging:** Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
+2.  **Load Add-on:** Click the **"Load Temporary Add-on..."** button.
+3.  **Select File:** Navigate to the **`frontend`** folder. You must select **any file** inside this folder, such as the **`manifest.json`** file.
+4.  **Verification:** The extension will be loaded and its icon will appear in your toolbar. (Note: Firefox unloads temporary add-ons when the browser is closed).
+
+#### STEP 3: System Usage and Verification
+
+1.  **Prerequisite Check:** Ensure the Python server from **STEP 1** is running.
+2.  **Open Target URL:** Navigate to any website in your browser.
+3.  **Click Extension Icon:** Click the **Phishing Detector** icon in your browser's toolbar.
+4.  **Analyze:** Click the **"Analyze"** button. The extension sends the URL to the API, and the UI dynamically updates with the **Final Verdict** and the three individual voting results.
+
+---
+
