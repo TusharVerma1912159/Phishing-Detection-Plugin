@@ -1,0 +1,27 @@
+# =========================================================================
+# PHISHING DETECTOR ENVIRONMENT REQUIREMENTS
+# All necessary packages for the Stacking Ensemble and Flask API.
+# =========================================================================
+
+# CORE DATA SCIENCE & UTILITIES
+# ----------------------------------------------------------------------
+numpy
+pandas
+joblib          # For saving/loading models and scalers
+configparser    # For reading API keys from config.ini
+
+# SCALING, STACKING & META-LEARNER
+# ----------------------------------------------------------------------
+scikit-learn    # Includes StackingClassifier, StandardScaler, and LogisticRegression (meta-learner)
+
+# BASE LEARNERS (The specialized algorithms forming the Level-0 layer)
+# ----------------------------------------------------------------------
+xgboost
+lightgbm
+catboost     
+
+# API & NETWORK SERVICES (For the local Flask server and external checks)
+# ----------------------------------------------------------------------
+Flask
+requests        # For Google Safe Browsing and VirusTotal checks
+tldextract      # For robust domain feature extraction
