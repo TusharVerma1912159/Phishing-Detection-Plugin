@@ -1,74 +1,111 @@
-# 🎣 Phishing Detector (ML Ensemble + API Fusion)
+# 🎣 Phishing Detector: ML Ensemble & API Fusion System
 
-## 🌟 Project Overview
+## 🌟 1. Project Overview
 
-This project is a sophisticated **Phishing Detection System** delivered as a browser extension. It utilizes a three-pronged defense strategy for real-time URL analysis:
+This project implements a robust, real-time URL analysis system designed to detect phishing attempts, packaged as a lightweight browser extension. The core innovation lies in its defensive architecture, which moves beyond a single machine learning prediction.
 
-1.  **Local Machine Learning Model:** A trained ensemble classifier analyzes extracted URL features.
-2.  **External Threat Intelligence:** Integrates verdicts from the **Google Safe Browsing (GSB)** and **VirusTotal (VT)** APIs.
-3.  **Majority Vote Fusion:** The final security verdict (Phishing, Legitimate, or Suspicious) is determined by a **2-out-of-3 majority vote**, significantly enhancing robustness and reliability over a single model's prediction.
+The final security verdict is based on a **Majority Vote** from three distinct analysis sources:
 
-The system is split into a Python/Flask **Backend API** (for heavy lifting and ML inference) and a pure JavaScript/HTML **Frontend** (as a browser extension).
+1.  **Local Machine Learning Model:** A highly accurate ensemble classifier.
+2.  **Google Safe Browsing (GSB):** A widely trusted external threat intelligence API.
+3.  **VirusTotal (VT):** A comprehensive URL scanning service leveraging multiple security vendors.
 
----
-
-## 🏗️ Monorepo Structure and File Breakdown
-
-The repository is organized into distinct `backend` and `frontend` directories, maintaining a clean separation of concerns.
-
-### ⚙️ Backend Files (`backend/` folder)
-
-This component hosts the core logic, data, and machine learning pipeline, managed by a Flask API service.
-
-| File Name | Description |
-| :--- | :--- |
-| **`api.py`** | **Flask API Service:** The central application. It handles incoming URL analysis requests, loads the serialized ML model and scaler, performs feature extraction, integrates GSB/VT checks, and fuses the three verdicts into a final JSON response. |
-| **`train_model.py`** | **Model Training Script:** This script prepares the `Phishing_Legitimate_full.csv` data, trains the **Stacking Classifier** ensemble (including models like XGBoost/LightGBM), evaluates performance, and saves the three necessary production artifacts (`.pkl` files). |
-| **`config.ini`** | **Configuration File:** Stores sensitive, environment-specific variables, primarily the **Google Safe Browsing API Key** and **VirusTotal API Key**, which are loaded by `api.py`. |
-| **`Phishing_Legitimate_full.csv`**| **Training Data:** The full dataset used to train the machine learning model, containing various features extracted from URLs and their corresponding security labels. |
-| **`phishing_stacking_model.pkl`**| **Trained ML Model:** The serialized binary object containing the complete, production-ready **Stacking Classifier ensemble**. This is loaded by `api.py` for local, high-speed classification. |
-| **`scaler.pkl`** | **Feature Scaler:** A serialized `StandardScaler` object, fit during the training process. It is critical for transforming raw URL features at inference time in `api.py` to ensure consistency with the model's training data scale. |
-| **`feature_names.pkl`** | **Feature Order List:** A serialized list containing the exact names and order of the features that the `scaler.pkl` and ML model expect as input. This prevents critical feature misalignment during real-time prediction. |
-
-### 💻 Frontend Files (`frontend/` folder)
-
-This component contains the files necessary to run the browser extension UI (tested primarily on Chrome/Chromium-based browsers).
-
-| File Name | Description |
-| :--- | :--- |
-| **`manifest.json`** | **Extension Metadata:** The required configuration file (Manifest V3). It defines the extension's name, version, permissions (`activeTab`, `storage`), and specifies the `default_popup` (`popup.html`). Crucially, it lists `http://127.0.0.1:5000/*` under `host_permissions` to allow communication with the local backend API. |
-| **`popup.html`** | **User Interface Markup:** Provides the HTML structure for the browser extension's pop-up window, including the URL input field, the "Analyze" button, and the dedicated display areas for the final verdict and the three independent votes. |
-| **`popup.js`** | **UI Logic and API Interaction:** The main JavaScript logic. It handles button clicks, uses the browser API to retrieve the current tab's URL, sends a `fetch` request to the running Flask API (`http://127.0.0.1:5000/analyze`), and dynamically updates the `popup.html` with the results. |
-| **`style.css` (Assumed)**| **Styling Sheet:** (Not uploaded, but inferred from `popup.html`). Provides the visual styling (CSS) for the extension's UI to ensure a clean and responsive design. |
+The system is architecturally split into a **Python/Flask Backend API** (for heavy-duty machine learning and external API integration) and a **JavaScript/HTML Frontend** (the browser extension UI).
 
 ---
 
-## 🛠️ Setup and Running the Project
+## 🏗️ 2. Detailed File Breakdown
 
-### 1. Backend Service Setup
+The project adheres to a clean, decoupled Monorepo structure, separating the core service logic from the user interface.
 
-The Flask API must be running locally for the browser extension to function.
+### A. Backend Component (`backend/` folder)
 
-1.  **Prerequisites:** Ensure you have **Python 3** and the necessary dependencies (e.g., `Flask`, `scikit-learn`, `xgboost`, `lightgbm`, `pandas`, `joblib`, `requests`, `tldextract`) installed in a virtual environment.
-2.  **API Keys:** Obtain and securely insert your **Google Safe Browsing API Key** and **VirusTotal API Key** into the `backend/config.ini` file.
-3.  **Run the API:** Navigate to the `backend` directory in your terminal and start the server:
+This component contains the machine learning assets, configuration, and the Flask API that serves the analysis requests.
+
+| File Name | Purpose and Technical Description |
+| :--- | :--- |
+| **`api.py`** | **Flask API Service Core:** This is the main server file that runs on `http://127.0.0.1:5000/`. It handles incoming `POST` requests containing a URL, loads the serialized ML model/scaler, performs real-time feature extraction on the input URL, queries the Google Safe Browsing and VirusTotal APIs, and applies the **2-out-of-3 majority vote logic** to produce the final verdict. |
+| **`train_model.py`** | **Model Training Script:** The script responsible for reading the CSV data, splitting it into training/testing sets, fitting the `StandardScaler`, training the **Stacking Classifier** ensemble (composed of base learners like XGBoost and LightGBM), evaluating its performance, and serializing the three necessary production artifacts (`.pkl` files). |
+| **`config.ini`** | **Configuration File:** Stores necessary credentials in the `[API_KEYS]` section, specifically the confidential **GOOGLE_API_KEY** and **VIRUSTOTAL_API_KEY** required for external threat intelligence checks within `api.py`. |
+| **`Phishing_Legitimate_full.csv`**| **Training Data:** The raw dataset used for the ML pipeline, featuring 50+ computed features extracted from URLs (e.g., `NumDots`, `UrlLength`, `PathLevel`) and the binary `CLASS_LABEL` (0 or 1). |
+| **`phishing_stacking_model.pkl`**| **Trained ML Model:** The serialized binary file containing the complete, pre-trained **`sklearn.ensemble.StackingClassifier`**. This is loaded by `api.py` for high-speed, local URL classification. |
+| **`scaler.pkl`** | **Feature Scaler:** The serialized `sklearn.preprocessing.StandardScaler` object, fit exclusively on the training data. This must be used by `api.py` to normalize (scale) input features from a new URL before they are fed to the `phishing_stacking_model.pkl`. |
+| **`feature_names.pkl`** | **Feature Order List:** A serialized list of feature names (`NumDots`, `SubdomainLevel`, etc.). It defines the **exact, canonical order** that the features must be arranged in when passed to the `scaler.pkl` and the ML model at inference time, preventing critical feature misalignment. |
+
+### B. Frontend Component (`frontend/` folder)
+
+This component is the Manifest V3 browser extension UI and logic.
+
+| File Name | Purpose and Technical Description |
+| :--- | :--- |
+| **`manifest.json`** | **Extension Configuration:** Defines the extension's metadata, permissions (`activeTab`, `storage`), and sets `popup.html` as the main interface. Critically, it declares `http://127.0.0.1:5000/*` under `host_permissions` to allow the extension to send requests to the local Flask API. |
+| **`popup.html`** | **User Interface (UI):** The HTML markup for the pop-up window. It contains an input box, buttons, and dedicated, structured display areas for the overall final verdict and the individual votes from the Model, GSB, and VT. |
+| **`popup.js`** | **UI Logic and API Communication:** The client-side JavaScript that governs the extension's behavior. It retrieves the current tab's URL, sends the URL to the backend via a `fetch('http://127.0.0.1:5000/analyze', ...)` POST request, handles the JSON response, and dynamically renders the results and status chips on `popup.html`. |
+| **`style.css`** | **Styling Sheet:** Provides the clean, professional visual styling (CSS) for all elements within `popup.html`, including the visual representation of status (Green/Red/Amber) for the verdict chips. |
+
+---
+
+## ⚙️ 3. Installation and Execution Guide
+
+This project requires two separate components to be running concurrently: the Backend API and the Frontend Extension.
+
+### STEP 1: Backend API Setup (Python Environment)
+
+This procedure sets up the core analysis server.
+
+1.  **Project Directory:** Ensure you are in the root directory of the project, which contains the `backend` and `frontend` folders.
+2.  **Virtual Environment (Mandatory):** For isolation, create and activate a Python virtual environment.
     ```bash
+    # Create the virtual environment
+    python3 -m venv venv 
+    
+    # Activate the environment (macOS/Linux)
+    source venv/bin/activate
+    
+    # Activate the environment (Windows - Command Prompt)
+    # venv\Scripts\activate
+    ```
+3.  **Install Dependencies:** Install all required Python packages (e.g., `Flask`, `scikit-learn`, `joblib`, `requests`, `pandas`, `tldextract`, `xgboost`, `lightgbm`). If a `requirements.txt` file is not present, you must manually install these:
+    ```bash
+    pip install Flask scikit-learn joblib requests pandas numpy tldextract configparser xgboost lightgbm
+    ```
+4.  **API Key Configuration (Crucial):** Open the file **`backend/config.ini`**. You **must** replace the placeholder API keys with your valid, personal keys for Google Safe Browsing and VirusTotal.
+    ```ini
+    # backend/config.ini - Replace the entire strings after the = sign
+    [API_KEYS]
+    GOOGLE_API_KEY = YOUR_ACTUAL_GOOGLE_SAFE_BROWSING_KEY_HERE
+    VIRUSTOTAL_API_KEY = YOUR_ACTUAL_VIRUSTOTAL_KEY_HERE
+    ```
+5.  **Run the Backend Service:** Navigate into the `backend` folder and start the Flask server.
+    ```bash
+    cd backend
     python api.py
     ```
-    The service will start listening on `http://127.0.0.1:5000/`. **Keep this terminal window open.**
+    **Expected Output:** The console should show a message indicating the Flask application is running, typically on `http://127.0.0.1:5000/`. **Keep this terminal window open; the extension will not work if the server is stopped.**
 
-### 2. Frontend (Browser Extension) Installation
+### STEP 2: Frontend Extension Setup (Browser)
 
-The extension is loaded directly into your browser's development environment.
+This procedure loads the extension into your browser in developer mode (tested on Chromium-based browsers like Chrome and Edge).
 
-1.  **Open Browser Extensions:** In a Chromium-based browser (Chrome, Edge), navigate to `chrome://extensions/`.
-2.  **Enable Developer Mode:** Toggle the **"Developer mode"** switch (usually in the top right corner).
-3.  **Load Unpacked Extension:** Click the **"Load unpacked"** button.
-4.  **Select Folder:** Browse to the project's **`frontend`** folder and select it.
-5.  The **"Phishing Detector"** icon should appear in your browser's toolbar, ready to analyze URLs by communicating with your running backend API.
+1.  **Open Extension Management:** Open your web browser (e.g., Chrome/Edge) and navigate to the extensions management page:
+    * Type the URL: `chrome://extensions/`
+2.  **Enable Developer Mode:** Locate the toggle switch labeled **"Developer mode"** (usually in the upper-right corner) and ensure it is **switched ON**.
+3.  **Load the Extension:** Click the **"Load unpacked"** button that appears after enabling developer mode. 4.  **Select the Folder:** A file dialog will open. Navigate to your project folder and specifically select the **`frontend`** folder (the one containing `manifest.json`, `popup.html`, etc.). **Do not select the root folder; you must select the `frontend` folder.**
+5.  **Verification:**
+    * The extension, named **"Phishing Detector"**, will appear in your list of installed extensions.
+    * A small icon (usually a shield or similar) will appear in your browser's toolbar.
+
+### STEP 3: Usage
+
+1.  **Open a Website:** Navigate to any website you wish to analyze in a new tab.
+2.  **Click the Icon:** Click the **Phishing Detector** icon in your browser's toolbar to open the pop-up.
+3.  **Analyze:**
+    * Click the **"Current"** button to automatically populate the input field with the tab's URL.
+    * Click the **"Analyze"** button to send the URL to your running Flask API (Step 1) for the three-way majority vote analysis.
+4.  **Review Verdict:** The pop-up will display the final verdict (Phishing, Legitimate, or Suspicious) and the individual results from the Model, Google Safe Browsing, and VirusTotal.
 
 ---
 
-## ⚖️ License
+## ⚖️ 4. License
 
 [Insert your chosen license here, e.g., MIT, Apache 2.0, or leave blank if undecided.]
