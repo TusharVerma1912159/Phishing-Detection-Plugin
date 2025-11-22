@@ -1,96 +1,76 @@
-## 🎣 Phishing Detector: ML Ensemble & API Fusion System (A Complete Guide)
+# 🛡️ Phishing Detector: Three-Layer Stacking Ensemble and API Service
 
-### 🌟 1. Project Overview
+## 1. Project Overview
 
-This project implements a robust, real-time **URL phishing detection system** packaged as a browser extension. Its core strength is its **Majority Vote architecture**, which integrates three distinct analysis sources to provide a reliable security verdict, minimizing dependence on any single source:
+This project implements a highly robust, multi-layer URL classification system designed to detect phishing attempts with high confidence. The architecture combines a sophisticated **Stacked Generalization Ensemble** (local ML) with real-time verification against **External Threat Intelligence** APIs (Google Safe Browsing and VirusTotal). The final decision is a **Majority Vote (2-out-of-3)** across these three independent security checks.
 
-1.  **Local Machine Learning Model:** A high-accuracy stacking ensemble classifier.
-2.  **Google Safe Browsing (GSB):** External threat intelligence API.
-3.  **VirusTotal (VT):** Comprehensive multi-vendor URL scanning service.
+The system operates as two interconnected components:
 
-The final verdict is determined by a **2-out-of-3 majority**, classifying the URL as **Phishing**, **Legitimate**, or **Suspicious**. The architecture is split into a **Python/Flask Backend API** and a JavaScript/HTML **Frontend** extension.
+1.  **Backend (Python/Flask):** A local HTTP API service (`api.py`) that handles URL feature extraction, runs the Machine Learning model, queries external APIs, and returns a unified JSON verdict.
+2.  **Frontend (`/frontend` folder):** A user-friendly browser extension (Manifest V3) that captures the current tab's URL and communicates with the local API for instant analysis, displaying the majority verdict and individual component scores.
 
 ---
 
-### 🏗️ 2. Detailed File Breakdown by Component
+## 2. Technical Architecture: Stacking Ensemble & Majority Vote
 
-The repository follows a clean, decoupled structure. **Note:** The extension files are located directly within the **`frontend/`** folder.
+The central strength of this project lies in its ability to fuse predictions from multiple, diverse sources, significantly improving reliability and reducing the chance of a false positive or false negative from any single source.
 
-#### A. Backend Component (`backend/` folder)
+### 2.1 The Stacking Ensemble (Local ML Model)
 
-This component contains the core Python logic, machine learning assets, and the Flask API service.
+The local machine learning component utilizes **Stacked Generalization (Stacking)**, an advanced ensemble method. This technique trains multiple Base Learners (Level-0) and then uses their predictions as input for a single Meta-Learner (Level-1), which learns how to optimally combine their outputs. This strategy leverages the strengths of diverse algorithms while compensating for their individual weaknesses.
 
-| File Name | Purpose and Technical Description |
-| :--- | :--- |
-| **`api.py`** | **Flask API Service Core:** Runs on `http://127.0.0.1:5000/`. It handles URL requests, loads the ML model/scaler, performs real-time feature extraction, queries GSB and VT APIs, and applies the **majority vote fusion logic**. |
-| **`train_model.py`** | **Model Training Script:** Script to prepare data, train the **Stacking Classifier** ensemble, and serialize the final model, scaler, and feature list as `.pkl` files. |
-| **`config.ini`** | **Configuration File:** Stores the necessary **GOOGLE\_API\_KEY** and **VIRUSTOTAL\_API\_KEY** for external threat checks. **Placeholders must be replaced before use**. |
-| **`Phishing_Legitimate_full.csv`**| **Training Data:** The raw dataset used for ML training, containing 50+ computed URL features and the binary `CLASS_LABEL`. |
-| **`phishing_stacking_model.pkl`**| **Trained ML Model:** The serialized **`StackingClassifier`** object loaded by `api.py` for high-speed, local classification. |
-| **`scaler.pkl`** | **Feature Scaler:** The serialized `StandardScaler` object used to **normalize incoming URL features** in `api.py` before model input, ensuring data consistency. |
-| **`feature_names.pkl`** | **Feature Order List:** A serialized list that defines the **exact, mandatory order** of features expected by the model, preventing critical column misalignment during inference. |
 
-#### B. Frontend Component (`frontend/` folder)
 
-This component is the Manifest V3 browser extension UI and logic.
+| Component Type | Specific Algorithm | Library | Role and Rationale |
+| :--- | :--- | :--- | :--- |
+| **Meta-Learner (Level-1)** | **Logistic Regression** | `scikit-learn` | Acts as the final fusion model. It is trained on the out-of-fold predictions of the Base Learners, making it highly robust to overfitting and excellent for combining probabilities. |
+| **Base Learner 1 (Level-0)** | **XGBoost** | `xgboost` | Excellent for tabular data, provides fast, highly accurate predictions via optimized gradient boosting. |
+| **Base Learner 2 (Level-0)** | **LightGBM** | `lightgbm` | Known for efficiency and speed, particularly effective on large datasets. |
+| **Base Learner 3 (Level-0)** | **CatBoost** | `catboost` | Specifically chosen for its superior handling of raw categorical features (though our feature set is mostly numeric), ensuring robustness against potential data shifts. |
+| **Feature Preprocessing** | **StandardScaler** | `scikit-learn` | Ensures all 48 URL features are standardized (zero mean, unit variance) before model input, preventing high-magnitude features from dominating the model training. |
 
-| File Name | Location | Purpose and Technical Description |
+### 2.2 External Threat Intelligence Fusion
+
+The final outcome is determined by the **Majority Vote** across the three core indicators:
+
+| Source | Check Type | Outcome Values |
 | :--- | :--- | :--- |
-| **`manifest.json`** | `.../frontend/` | Defines metadata and permissions. Includes `host_permissions` for **`http://127.0.0.1:5000/*`** to enable API communication. |
-| **`popup.html`** | `.../frontend/` | HTML markup for the pop-up. Includes structured display areas for the Final Verdict and the three individual votes. |
-| **`popup.js`** | `.../frontend/` | Client-side logic. It captures the URL (using `chrome.tabs.query`), sends it to the Flask API via `fetch()`, and dynamically updates the UI based on the JSON response. |
-| **`style.css`** | `.../frontend/` | Provides the professional visual styling (CSS) for all UI elements in `popup.html`, including the status coloring for the verdict chips. |
+| **Phisher Model** | Local ML (Stacking Ensemble) | `Phishing` / `Legitimate` |
+| **Google Safe Browsing (GSB)** | External API Check | `Phishing` / `Legitimate` / `Unknown` |
+| **VirusTotal (VT)** | External API Check | `Phishing` / `Legitimate` / `Unknown` |
+
+The `api.py` service performs this fusion logic, returning a high-level final verdict (`Phishing`, `Legitimate`, or `Suspicious`).
 
 ---
 
-### ⚙️ 3. Installation and Execution Guide (Step-by-Step)
+## 3. Environment & Setup
 
-The system is a two-part application. Both the backend service and the frontend extension **must** be running concurrently.
+### 3.1 Comprehensive Python Dependencies (`requirements.txt`)
 
-#### STEP 1: Backend API Setup (Python)
+For guaranteed reproducibility, all Python dependencies, including all specialized ML libraries, are listed in the `requirements.txt` file.
 
-This sets up the core analysis server.
+**File: `requirements.txt`**
+```text
+# =========================================================================
+# PHISHING DETECTOR ENVIRONMENT REQUIREMENTS
+# All necessary packages for the Stacking Ensemble and Flask API.
+# =========================================================================
 
-1.  **Prerequisites:** Ensure **Python 3** is installed. Activate a virtual environment and install the required libraries:
-    ```bash
-    # Example installation of core libraries:
-    pip install Flask scikit-learn joblib requests pandas numpy tldextract configparser xgboost lightgbm
-    ```
-2.  **Configure API Keys (Critical):**
-    * Open **`backend/config.ini`**.
-    * **Replace the placeholder strings** for `GOOGLE_API_KEY` and `VIRUSTOTAL_API_KEY` with your actual, valid API keys. The application will not function without them.
-3.  **Run the Backend Service:** Navigate into the **`backend`** folder using your terminal/command prompt and execute the main API file:
-    ```bash
-    # Navigate to the backend directory
-    cd backend
-    python api.py
-    ```
-    **Expected State:** The server must be actively running and listening on **`http://127.0.0.1:5000/`**. **Do not close this terminal window.**
+# CORE DATA SCIENCE & UTILITIES
+joblib          # For saving/loading models (PKL files) and scalers
+numpy           # Numerical computing base
+pandas          # Data manipulation and feature construction
+configparser    # To securely read API keys from config.ini
 
-#### STEP 2: Frontend Extension Setup (Browser)
+# SCALING, STACKING & META-LEARNER
+scikit-learn    # Includes StackingClassifier, StandardScaler, and LogisticRegression (meta-learner)
 
-This loads the extension into your browser's developer environment.
+# BASE LEARNERS (Level-0 Models)
+xgboost
+lightgbm
+catboost        
 
-##### A. For Chrome / Chromium-based Browsers
-
-1.  **Open Extensions:** Navigate to `chrome://extensions/`.
-2.  **Enable Developer Mode:** Toggle the **"Developer mode"** switch to **ON**.
-3.  **Load Extension:** Click the **"Load unpacked"** button.
-4.  **Select Folder:** In the file dialog, navigate to the project and **select the folder: `frontend`**.
-
-##### B. For Mozilla Firefox
-
-1.  **Open Debugging:** Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-2.  **Load Add-on:** Click the **"Load Temporary Add-on..."** button.
-3.  **Select File:** Navigate to the **`frontend`** folder. You must select **any file** inside this folder, such as the **`manifest.json`** file.
-4.  **Verification:** The extension will be loaded and its icon will appear in your toolbar. (Note: Firefox unloads temporary add-ons when the browser is closed).
-
-#### STEP 3: System Usage and Verification
-
-1.  **Prerequisite Check:** Ensure the Python server from **STEP 1** is running.
-2.  **Open Target URL:** Navigate to any website in your browser.
-3.  **Click Extension Icon:** Click the **Phishing Detector** icon in your browser's toolbar.
-4.  **Analyze:** Click the **"Analyze"** button. The extension sends the URL to the API, and the UI dynamically updates with the **Final Verdict** and the three individual voting results.
-
----
-
+# API & NETWORK SERVICES
+Flask           # The micro-web framework for the API
+requests        # For making external HTTP requests (GSB, VT)
+tldextract      # For robust extraction of eTLD+1 (registered domain)
