@@ -1,0 +1,32 @@
+<svg viewBox="0 0 360 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"  stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+    <radialGradient id="pulse" cx="0.2" cy="0.3" r="0.9">
+      <stop offset="0%" stop-color="rgba(59,130,246,0.45)"/>
+      <stop offset="70%" stop-color="rgba(59,130,246,0.08)"/>
+      <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+    </radialGradient>
+  </defs>
+
+  <!-- dark base -->
+  <rect width="360" height="80" rx="10" fill="url(#dark)"/>
+
+  <!-- subtle grid -->
+  <g opacity=".25">
+    <path d="M0 10 H360 M0 26 H360 M0 42 H360 M0 58 H360 M0 74 H360" stroke="#1E293B" stroke-width="1"/>
+    <path d="M20 0 V80 M60 0 V80 M100 0 V80 M140 0 V80 M180 0 V80 M220 0 V80 M260 0 V80 M300 0 V80 M340 0 V80" stroke="#1E293B" stroke-width="1"/>
+  </g>
+
+  <!-- radar pulse -->
+  <circle cx="90" cy="32" r="60" fill="url(#pulse)"/>
+  <path d="M90 32 L148 18 A60 60 0 0 1 114 84 Z" fill="rgba(96,165,250,0.35)"/>
+
+  <!-- right shield -->
+  <g transform="translate(292,14)">
+    <path d="M36 2 l26 14 v21 c0 17-13 33-26 36-13-3-26-19-26-36 V16 l26-14z" fill="#2563EB" opacity=".85"/>
+    <path d="M25 39 l-7-7 -5 5 12 12 28-28 -5-5 -23 23z" fill="#ffffff"/>
+  </g>
+</svg>

@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Phishing Detector",
+  "version": "1.0.0",
+  "description": "Formal, clean UI to analyze a URL using  phisher model + Google Safe Browsing + VirusTotal (majority vote).",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "http://127.0.0.1:5000/*"
+  ],
+  "action": {
+    "default_title": "Phishing Detector",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
+}

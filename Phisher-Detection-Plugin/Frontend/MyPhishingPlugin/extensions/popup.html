@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Phishing Detector</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <img src="images/banner.svg" alt="" class="banner" />
+
+      <header class="header">
+        <img src="images/icon32.png" alt="" width="24" height="24" />
+        <div class="title">
+          <h1>Phishing Detector</h1>
+          <p>Local analysis • Majority vote (2 of 3)</p>
+        </div>
+        <div id="chip" class="chip chip--idle">Idle</div>
+      </header>
+
+      <section class="card">
+        <label class="label">URL</label>
+        <div class="row">
+          <input id="urlInput" class="input" type="text" placeholder="https://example.com" />
+          <button id="currentBtn" class="btn btn--ghost" title="Use current tab">Current</button>
+        </div>
+        <div class="row row--end">
+          <button id="analyzeBtn" class="btn btn--primary">
+            <span class="spinner" hidden></span>
+            <span class="btn__text">Analyze</span>
+          </button>
+        </div>
+      </section>
+
+      <section id="resultCard" class="card" hidden>
+        <div class="verdict">
+          <div class="verdict__left">
+            <div id="verdictIcon" class="verdict__icon" aria-hidden="true"></div>
+            <h2 id="finalVerdict" class="verdict__title">—</h2>
+          </div>
+          <div class="muted"> Phisher Model • Google Safe Browsing • VirusTotal</div>
+        </div>
+
+        <div class="grid">
+          <div class="tile">
+            <div class="tile__head">Phisher Model</div>
+            <div id="modelCell" class="tile__body"><span class="pill">—</span></div>
+          </div>
+          <div class="tile">
+            <div class="tile__head">Google Safe Browsing</div>
+            <div id="gsbCell" class="tile__body"><span class="pill">—</span></div>
+          </div>
+          <div class="tile">
+            <div class="tile__head">VirusTotal</div>
+            <div id="vtCell" class="tile__body"><span class="pill">—</span></div>
+          </div>
+        </div>
+
+        <details class="details">
+          <summary>Response JSON</summary>
+          <pre id="rawJson"></pre>
+        </details>
+      </section>
+
+      <footer class="footer">
+        <small class="muted">API: <code>http://127.0.0.1:5000/analyze</code></small>
+      </footer>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
